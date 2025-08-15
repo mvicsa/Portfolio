@@ -15,7 +15,11 @@ export async function GET() {
       );
     }
 
+    console.log('Attempting to connect to MongoDB...');
+    console.log('MongoDB URI exists:', !!process.env.MONGODB_URI);
+    
     await connectDB();
+    console.log('MongoDB connection successful');
     
     let profile = await Profile.findOne();
     console.log('GET: Found profile:', profile);
@@ -24,6 +28,7 @@ export async function GET() {
     
     // If no profile exists, create a default one
     if (!profile) {
+      console.log('No profile found, creating default profile...');
       profile = new Profile({
         name: 'Mohamed',
         title: 'MERN Stack Developer',
@@ -71,6 +76,7 @@ export async function GET() {
         ],
       });
       await profile.save();
+      console.log('Default profile created successfully');
     } else {
       // Migrate existing skills from old format to new format
       if (profile.skills && profile.skills.length > 0 && typeof profile.skills[0] === 'string') {
@@ -93,6 +99,7 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Get profile error:', error);
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
     
     // Provide more specific error messages
     if (error instanceof Error) {
@@ -105,6 +112,18 @@ export async function GET() {
       if (error.message.includes('MongoNetworkError')) {
         return NextResponse.json(
           { success: false, error: 'Database network error' },
+          { status: 500 }
+        );
+      }
+      if (error.message.includes('Authentication failed')) {
+        return NextResponse.json(
+          { success: false, error: 'Database authentication failed' },
+          { status: 500 }
+        );
+      }
+      if (error.message.includes('ENODATA')) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid database connection string' },
           { status: 500 }
         );
       }

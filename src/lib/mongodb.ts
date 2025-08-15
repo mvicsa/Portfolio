@@ -19,10 +19,12 @@ if (!(global as { mongoose?: Cached }).mongoose) {
 
 async function connectDB() {
   if (cached.conn) {
+    console.log('Using cached MongoDB connection');
     return cached.conn;
   }
 
   if (!cached.promise) {
+    console.log('Creating new MongoDB connection...');
     const opts = {
       bufferCommands: false,
       maxPoolSize: 10, // Maintain up to 10 socket connections
@@ -31,21 +33,38 @@ async function connectDB() {
       family: 4, // Use IPv4, skip trying IPv6
     };
 
+    console.log('MongoDB connection options:', opts);
+    console.log('MongoDB URI length:', MONGODB_URI?.length || 0);
+
     cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
       console.log('MongoDB connected successfully');
       return mongoose;
     }).catch((error) => {
       console.error('MongoDB connection error:', error);
+      console.error('Error details:', {
+        name: error.name,
+        message: error.message,
+        code: error.code,
+        stack: error.stack
+      });
       cached.promise = null;
       throw error;
     });
   }
 
   try {
+    console.log('Waiting for MongoDB connection...');
     cached.conn = await cached.promise;
+    console.log('MongoDB connection established');
   } catch (e) {
     cached.promise = null;
     console.error('Failed to establish MongoDB connection:', e);
+    console.error('Connection error details:', {
+      name: e instanceof Error ? e.name : 'Unknown',
+      message: e instanceof Error ? e.message : 'Unknown error',
+      code: (e as any)?.code || 'Unknown',
+      stack: e instanceof Error ? e.stack : 'No stack trace'
+    });
     throw e;
   }
 
