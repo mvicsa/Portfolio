@@ -6,6 +6,15 @@ import { isAuthenticated, isAdmin } from '@/lib/auth';
 // GET all projects
 export async function GET(req: NextRequest) {
   try {
+    // Check if MongoDB URI is configured
+    if (!process.env.MONGODB_URI) {
+      console.error('MONGODB_URI environment variable is not configured');
+      return NextResponse.json(
+        { error: 'Database configuration error' },
+        { status: 500 }
+      );
+    }
+
     await connectDB();
     
     const { searchParams } = new URL(req.url);
@@ -30,6 +39,23 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(projects);
   } catch (error) {
     console.error('Get projects error:', error);
+    
+    // Provide more specific error messages
+    if (error instanceof Error) {
+      if (error.message.includes('ECONNREFUSED') || error.message.includes('ENOTFOUND')) {
+        return NextResponse.json(
+          { error: 'Database connection failed' },
+          { status: 500 }
+        );
+      }
+      if (error.message.includes('MongoNetworkError')) {
+        return NextResponse.json(
+          { error: 'Database network error' },
+          { status: 500 }
+        );
+      }
+    }
+    
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
