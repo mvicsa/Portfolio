@@ -62,7 +62,6 @@ async function connectDB() {
     console.error('Connection error details:', {
       name: e instanceof Error ? e.name : 'Unknown',
       message: e instanceof Error ? e.message : 'Unknown error',
-      code: (e as any)?.code || 'Unknown',
       stack: e instanceof Error ? e.stack : 'No stack trace'
     });
     throw e;

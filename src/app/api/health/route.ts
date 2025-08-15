@@ -33,7 +33,6 @@ export async function GET() {
     console.error('Health check error details:', {
       name: error instanceof Error ? error.name : 'Unknown',
       message: error instanceof Error ? error.message : 'Unknown error',
-      code: (error as any)?.code || 'Unknown',
       stack: error instanceof Error ? error.stack : 'No stack trace'
     });
     
@@ -41,7 +40,6 @@ export async function GET() {
       status: 'unhealthy',
       message: 'Database connection failed',
       error: error instanceof Error ? error.message : 'Unknown error',
-      errorCode: (error as any)?.code || 'Unknown',
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV || 'development',
       mongoUriExists: !!process.env.MONGODB_URI,
