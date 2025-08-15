@@ -6,21 +6,21 @@ import { ThemeProvider } from "@/components/theme-provider"
 const jost = Jost({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "MVICSA - Full Stack Developer & UI/UX Designer",
-  description: "Professional portfolio of MVICSA, a passionate full-stack developer and UI/UX designer creating exceptional digital experiences.",
-  keywords: ["Full Stack Developer", "UI/UX Designer", "React", "Next.js", "TypeScript", "Portfolio"],
-  authors: [{ name: "MVICSA" }],
-  creator: "MVICSA",
+  title: "Mohamed Abdelqader - MERN Stack Developer",
+  description: "Professional portfolio of Mohamed Abdelqader, a passionate MERN Stack developer creating exceptional digital experiences.",
+  keywords: ["MERN Stack Developer", "React", "Next.js", "TypeScript", "Portfolio"],
+  authors: [{ name: "Mohamed Abdelqader" }],
+  creator: "Mohamed Abdelqader",
   openGraph: {
-    title: "MVICSA - Full Stack Developer & UI/UX Designer",
-    description: "Professional portfolio showcasing web development, mobile apps, and UI/UX design projects.",
+    title: "Mohamed Abdelqader - MERN Stack Developer",
+    description: "Professional portfolio showcasing web development.",
     type: "website",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "MVICSA - Full Stack Developer & UI/UX Designer",
-    description: "Professional portfolio showcasing web development, mobile apps, and UI/UX design projects.",
+    title: "Mohamed Abdelqader - MERN Stack Developer",
+    description: "Professional portfolio showcasing web development.",
   },
 }
 

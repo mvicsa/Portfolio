@@ -92,6 +92,15 @@ export default function AdminDashboard() {
   const [showProjectForm, setShowProjectForm] = useState(false)
   const [showProfileForm, setShowProfileForm] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
+  
+  // Password change state
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [isChangingPassword, setIsChangingPassword] = useState(false)
+  const [passwordMessage, setPasswordMessage] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+  
   const router = useRouter()
   const { setTheme, resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
@@ -223,6 +232,62 @@ export default function AdminDashboard() {
   const handleCancelProjectForm = () => {
     setShowProjectForm(false)
     setEditingProject(null)
+  }
+
+  const handleChangePassword = async () => {
+    // Reset messages
+    setPasswordMessage('')
+    setPasswordError('')
+    
+    // Validation
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setPasswordError('All fields are required')
+      return
+    }
+    
+    if (newPassword !== confirmPassword) {
+      setPasswordError('New passwords do not match')
+      return
+    }
+    
+    if (newPassword.length < 6) {
+      setPasswordError('New password must be at least 6 characters long')
+      return
+    }
+    
+    setIsChangingPassword(true)
+    
+    try {
+      const token = localStorage.getItem('adminToken')
+      const response = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          currentPassword,
+          newPassword,
+          confirmPassword
+        })
+      })
+      
+      const data = await response.json()
+      
+      if (response.ok) {
+        setPasswordMessage('Password updated successfully!')
+        // Clear form
+        setCurrentPassword('')
+        setNewPassword('')
+        setConfirmPassword('')
+      } else {
+        setPasswordError(data.error || 'Failed to update password')
+      }
+    } catch (error) {
+      setPasswordError('Network error. Please try again.')
+    } finally {
+      setIsChangingPassword(false)
+    }
   }
 
   const handleSaveProfile = async (profileData: Partial<Profile>) => {
@@ -1017,6 +1082,8 @@ export default function AdminDashboard() {
                         <Input 
                           id="currentPassword"
                           type="password" 
+                          value={currentPassword}
+                          onChange={(e) => setCurrentPassword(e.target.value)}
                           placeholder="Enter current password"
                           className="transition-all duration-500 ease-out focus:scale-[1.02] focus:shadow-lg border-border/50 focus:border-primary/50"
                         />
@@ -1026,6 +1093,8 @@ export default function AdminDashboard() {
                         <Input 
                           id="newPassword"
                           type="password" 
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
                           placeholder="Enter new password"
                           className="transition-all duration-500 ease-out focus:scale-[1.02] focus:shadow-lg border-border/50 focus:border-primary/50"
                         />
@@ -1035,15 +1104,50 @@ export default function AdminDashboard() {
                         <Input 
                           id="confirmPassword"
                           type="password" 
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
                           placeholder="Confirm new password"
                           className="transition-all duration-500 ease-out focus:scale-[1.02] focus:shadow-lg border-border/50 focus:border-primary/50"
                         />
                       </div>
+                      
+                      {/* Password Messages */}
+                      {passwordError && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg text-sm"
+                        >
+                          {passwordError}
+                        </motion.div>
+                      )}
+                      
+                      {passwordMessage && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="bg-green-500/10 border border-green-500/20 text-green-600 px-4 py-3 rounded-lg text-sm"
+                        >
+                          {passwordMessage}
+                        </motion.div>
+                      )}
+                      
                       <Button 
-                        className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-xl transition-all duration-500 ease-out hover:scale-105 hover:shadow-2xl text-white border-0"
+                        onClick={handleChangePassword}
+                        disabled={isChangingPassword}
+                        className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-xl transition-all duration-500 ease-out hover:scale-105 hover:shadow-2xl text-white border-0 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <Zap className="h-4 w-4 mr-2" />
-                        Change Password
+                        {isChangingPassword ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                            Changing Password...
+                          </>
+                        ) : (
+                          <>
+                            <Zap className="h-4 w-4 mr-2" />
+                            Change Password
+                          </>
+                        )}
                       </Button>
                     </div>
                   </div>
