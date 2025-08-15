@@ -6,6 +6,15 @@ import { isAuthenticated, isAdmin } from '@/lib/auth';
 // GET profile
 export async function GET() {
   try {
+    // Check if MongoDB URI is configured
+    if (!process.env.MONGODB_URI) {
+      console.error('MONGODB_URI environment variable is not configured');
+      return NextResponse.json(
+        { success: false, error: 'Database configuration error' },
+        { status: 500 }
+      );
+    }
+
     await connectDB();
     
     let profile = await Profile.findOne();
@@ -84,6 +93,23 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Get profile error:', error);
+    
+    // Provide more specific error messages
+    if (error instanceof Error) {
+      if (error.message.includes('ECONNREFUSED') || error.message.includes('ENOTFOUND')) {
+        return NextResponse.json(
+          { success: false, error: 'Database connection failed' },
+          { status: 500 }
+        );
+      }
+      if (error.message.includes('MongoNetworkError')) {
+        return NextResponse.json(
+          { success: false, error: 'Database network error' },
+          { status: 500 }
+        );
+      }
+    }
+    
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
