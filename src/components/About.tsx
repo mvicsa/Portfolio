@@ -433,7 +433,7 @@ const About = () => {
                 Professional Experience
               </motion.span>
             </motion.h3>
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               {profile.experiences.map((experience, index) => {
                 const colors = [
                   "from-blue-600 to-purple-600",
@@ -499,7 +499,7 @@ const About = () => {
               My Achievements
             </motion.span>
           </motion.h3>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             <motion.div 
               className="group"
               variants={cardVariants}
