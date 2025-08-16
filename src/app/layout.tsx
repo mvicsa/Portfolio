@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Jost } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
+import { LoadingProvider } from "@/components/loading-provider"
 
 const jost = Jost({ subsets: ["latin"] })
 
@@ -38,7 +39,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <LoadingProvider>
+            {children}
+          </LoadingProvider>
         </ThemeProvider>
       </body>
     </html>

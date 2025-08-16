@@ -12,7 +12,6 @@ import {
   Plus,
   Edit,
   Trash2,
-  Eye,
   FileText,
   Github,
   Linkedin,
@@ -88,7 +87,6 @@ export default function AdminDashboard() {
   const [projects, setProjects] = useState<Project[]>([])
   const [profile, setProfile] = useState<Profile | null>(null)
   const [activeTab, setActiveTab] = useState('overview')
-  const [isLoading, setIsLoading] = useState(true)
   const [showProjectForm, setShowProjectForm] = useState(false)
   const [showProfileForm, setShowProfileForm] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
@@ -138,7 +136,7 @@ export default function AdminDashboard() {
       
       if (projectsRes.ok) {
         const projectsData = await projectsRes.json()
-        setProjects(projectsData)
+        setProjects(projectsData.data || projectsData)
       }
       
       if (profileRes.ok) {
@@ -155,8 +153,6 @@ export default function AdminDashboard() {
       }
     } catch (error) {
       console.error('Error fetching data:', error)
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -187,7 +183,7 @@ export default function AdminDashboard() {
     }
   }
 
-  const handleSaveProject = async (projectData: IProject) => {
+  const handleSaveProject = async (projectData: { title: string; description: string; shortDescription: string; image: string; technologies: string[]; githubUrl: string; liveUrl: string; featured: boolean; order: number; category: string; _id?: string }) => {
     try {
       const token = localStorage.getItem('adminToken')
       const method = editingProject ? 'PUT' : 'POST'
@@ -202,8 +198,12 @@ export default function AdminDashboard() {
         body: JSON.stringify(projectData)
       })
       
+      console.log('API Response status:', response.status)
+      console.log('API Response headers:', response.headers)
+      
       if (response.ok) {
         const savedProject = await response.json()
+        console.log('API Response body:', savedProject)
         
         if (editingProject) {
           setProjects(projects.map(p => p._id === editingProject._id ? savedProject : p))
@@ -213,6 +213,10 @@ export default function AdminDashboard() {
         
         setShowProjectForm(false)
         setEditingProject(null)
+      } else {
+        const errorText = await response.text()
+        console.error('API Error response:', errorText)
+        console.error('API Error status:', response.status)
       }
     } catch (error) {
       console.error('Error saving project:', error)
@@ -283,7 +287,7 @@ export default function AdminDashboard() {
       } else {
         setPasswordError(data.error || 'Failed to update password')
       }
-    } catch (error) {
+    } catch {
       setPasswordError('Network error. Please try again.')
     } finally {
       setIsChangingPassword(false)
@@ -335,43 +339,10 @@ export default function AdminDashboard() {
     return null
   }
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="relative"
-        >
-          <div className="w-32 h-32 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
-          <div className="absolute inset-0 w-32 h-32 border-4 border-transparent border-t-primary/60 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
-        </motion.div>
-      </div>
-    )
-  }
+
 
   if (!profile) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="text-center"
-        >
-          <div className="w-32 h-32 border-4 border-red-500/20 border-t-red-500 rounded-full animate-spin mx-auto mb-4"></div>
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Profile Not Loaded</h2>
-          <p className="text-muted-foreground mb-6">Unable to load profile data. Please check your connection.</p>
-          <Button 
-            onClick={() => window.location.reload()} 
-            className="bg-red-600 hover:bg-red-700 text-white"
-          >
-            Retry
-          </Button>
-        </motion.div>
-      </div>
-    )
+    return null;
   }
 
   return (
@@ -704,7 +675,7 @@ export default function AdminDashboard() {
                       
                       <CardContent className="mt-auto relative z-10">
                         <div className="flex flex-wrap gap-1 sm:gap-2 mb-4">
-                          {project.technologies.map((tech) => (
+                          {project?.technologies?.map((tech) => (
                             <Badge 
                               key={tech} 
                               variant="secondary"
@@ -717,13 +688,6 @@ export default function AdminDashboard() {
                         
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0">
                           <div className="flex space-x-2">
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              className="transition-all duration-300 ease-out hover:scale-105 hover:shadow-md hover:bg-primary/10 hover:border-primary/30"
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
                             <Button 
                               size="sm" 
                               variant="outline" 

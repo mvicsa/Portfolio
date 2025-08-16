@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { motion } from 'framer-motion'
+import { useLoadingState } from '@/hooks/useLoadingState'
 
 interface Skill {
   name: string
@@ -76,7 +77,7 @@ export default function ProfileForm({ profile, onSave, onCancel }: ProfileFormPr
   })
   const [newSkill, setNewSkill] = useState('')
   const [skillPercentage, setSkillPercentage] = useState(0)
-  const [isLoading, setIsLoading] = useState(false)
+  const { isLoading, startLoading, stopLoading } = useLoadingState()
 
   useEffect(() => {
     if (profile) {
@@ -147,7 +148,7 @@ export default function ProfileForm({ profile, onSave, onCancel }: ProfileFormPr
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
+          startLoading()
     
     try {
       console.log('Saving profile data:', formData)
@@ -156,7 +157,7 @@ export default function ProfileForm({ profile, onSave, onCancel }: ProfileFormPr
     } catch (error) {
       console.error('Error saving profile:', error)
     } finally {
-      setIsLoading(false)
+      stopLoading()
     }
   }
 

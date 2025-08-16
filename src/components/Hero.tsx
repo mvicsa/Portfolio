@@ -8,6 +8,7 @@ import { motion } from "framer-motion"
 import { useEffect, useState } from "react"
 import { scrollToSection } from "@/lib/utils"
 import Logo from "@/components/Logo"
+import { useLoading } from "@/components/loading-provider"
 
 interface Profile {
   name: string
@@ -27,7 +28,7 @@ interface Profile {
 
 const Hero = () => {
   const [profile, setProfile] = useState<Profile | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const { isLoading } = useLoading()
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -45,13 +46,21 @@ const Hero = () => {
         }
       } catch (error) {
         console.error('Error fetching profile:', error)
-      } finally {
-        setIsLoading(false)
       }
     }
 
     fetchProfile()
   }, [])
+
+  // Don't render anything while the global loading is active
+  if (isLoading) {
+    return null
+  }
+
+  // Don't render if profile is not loaded yet
+  if (!profile) {
+    return null
+  }
 
   // Predefined positions for sparkles to avoid hydration issues
   const sparklePositions = [
@@ -76,7 +85,6 @@ const Hero = () => {
     { left: 30, top: 88, delay: 1.6, duration: 2.8 },
     { left: 50, top: 82, delay: 0.2, duration: 2.5 },
     { left: 68, top: 90, delay: 0.5, duration: 2.6 },
-    { left: 88, top: 85, delay: 0.8, duration: 2.9 },
     { left: 12, top: 95, delay: 1.1, duration: 2.7 },
     { left: 28, top: 92, delay: 1.4, duration: 3.0 },
     { left: 42, top: 98, delay: 1.7, duration: 2.4 },
@@ -203,30 +211,14 @@ const Hero = () => {
     },
   }
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="text-center"
-        >
-          <div className="w-32 h-32 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading profile...</p>
-        </motion.div>
-      </div>
-    )
-  }
-
   return (
-         <motion.section 
-       id="home"
-       className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-muted/20 py-30"
-       initial="hidden"
-       animate="visible"
-       variants={containerVariants}
-     >
+    <motion.section 
+      id="home"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-muted/20 py-30"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
       {/* Enhanced Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div 
@@ -260,16 +252,16 @@ const Hero = () => {
               left: `${pos.left}%`,
               top: `${pos.top}%`,
             }}
-                         animate={{
-               scale: [0, 1, 0],
-               opacity: [0, 1, 0],
-             }}
-             transition={{
-               duration: pos.duration,
-               repeat: Infinity,
-               delay: pos.delay,
-               ease: "easeInOut" as const,
-             }}
+            animate={{
+              scale: [0, 1, 0],
+              opacity: [0, 1, 0],
+            }}
+            transition={{
+              duration: pos.duration,
+              repeat: Infinity,
+              delay: pos.delay,
+              ease: "easeInOut" as const,
+            }}
           />
         ))}
       </div>
@@ -303,19 +295,19 @@ const Hero = () => {
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
         <div className="max-w-4xl mx-auto">
-                     {/* Logo Display */}
-           <motion.div 
-             className="mb-8 flex justify-center"
-             variants={itemVariants}
-           >
-             <Logo size="lg" showText={false} />
-           </motion.div>
+          {/* Logo Display */}
+          <motion.div 
+            className="mb-8 flex justify-center"
+            variants={itemVariants}
+          >
+            <Logo size="lg" showText={false} />
+          </motion.div>
 
-           {/* Greeting with enhanced animation */}
-           <motion.div 
-             className="text-lg text-muted-foreground mb-4 flex items-center justify-center gap-2"
-             variants={itemVariants}
-           >
+          {/* Greeting with enhanced animation */}
+          <motion.div 
+            className="text-lg text-muted-foreground mb-4 flex items-center justify-center gap-2"
+            variants={itemVariants}
+          >
             <motion.span
               animate={{ rotate: [0, 10, -10, 0] }}
               transition={{ duration: 2, repeat: Infinity, delay: 1 }}
@@ -362,16 +354,16 @@ const Hero = () => {
                     left: `${pos.left}%`,
                     top: `${pos.top}%`,
                   }}
-                                     animate={{
-                     scale: [0, 1, 0],
-                     opacity: [0, 1, 0],
-                   }}
-                   transition={{
-                     duration: 2,
-                     repeat: Infinity,
-                     delay: pos.delay,
-                     ease: "easeInOut" as const,
-                   }}
+                  animate={{
+                    scale: [0, 1, 0],
+                    opacity: [0, 1, 0],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    delay: pos.delay,
+                    ease: "easeInOut" as const,
+                  }}
                 />
               ))}
             </div>
@@ -392,14 +384,6 @@ const Hero = () => {
             >
               {profile?.title || 'MERN Stack Developer'}
             </motion.span>
-            {/* <motion.span
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: "auto", opacity: 1 }}
-              transition={{ duration: 1.2, delay: 1.2, ease: "easeOut" }}
-              className="inline-block overflow-hidden whitespace-nowrap ml-2"
-            >
-              / Mern Stack Developer
-            </motion.span> */}
           </motion.h2>
 
           {/* Description with enhanced animation */}

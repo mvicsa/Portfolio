@@ -8,12 +8,13 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ThemeToggle } from '@/components/theme-toggle'
 
-export default function AdminLogin() {
+function AdminLogin() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+
   const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -26,8 +27,8 @@ export default function AdminLogin() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
     setError('')
+    setIsLoading(true)
 
     try {
       const response = await fetch('/api/auth/login', {
@@ -47,8 +48,8 @@ export default function AdminLogin() {
       } else {
         setError(data.error || 'Login failed')
       }
-    } catch (error) {
-      setError('Network error. Please try again.' + error)
+    } catch {
+      setError('Network error. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -156,20 +157,20 @@ export default function AdminLogin() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
               >
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isLoading ? (
-                    <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                      Signing in...
-                    </div>
-                  ) : (
-                    'Sign In'
-                  )}
-                </Button>
+                                 <Button
+                   type="submit"
+                   disabled={isLoading}
+                   className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                 >
+                   {isLoading ? (
+                     <>
+                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                       Signing In...
+                     </>
+                   ) : (
+                     'Sign In'
+                   )}
+                 </Button>
               </motion.div>
             </form>
 
@@ -189,3 +190,5 @@ export default function AdminLogin() {
     </div>
   )
 }
+
+export default AdminLogin

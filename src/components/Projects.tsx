@@ -10,17 +10,21 @@ import { motion } from "framer-motion"
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import { IProject } from "@/lib/models/Project"
+import { useLoading } from "@/components/loading-provider"
 
 const Projects = () => {
   const [projects, setProjects] = useState<(IProject & { icon: React.ElementType; color: string })[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const { isLoading } = useLoading()
 
   useEffect(() => {
     const fetchProjects = async () => {
       try {
         const response = await fetch('/api/projects')
         if (response.ok) {
-          const data = await response.json()
+          const result = await response.json()
+          console.log('API Response:', result)
+          const data = result.data || result
+          console.log('Projects data:', data)
           // Add icon and color properties to each project
           const projectsWithIcons = data.map((project: IProject, index: number) => {
             const icons = [Rocket, Star, Sparkles, Zap, Code2]
@@ -38,17 +42,21 @@ const Projects = () => {
               color: colors[index % icons.length]
             } as unknown as IProject & { icon: React.ElementType; color: string }
           })
+          console.log('Projects with icons:', projectsWithIcons)
           setProjects(projectsWithIcons)
         }
       } catch (error) {
         console.error('Error fetching projects:', error)
-      } finally {
-        setIsLoading(false)
       }
     }
 
     fetchProjects()
   }, [])
+
+  // Don't render anything while the global loading is active
+  if (isLoading) {
+    return null
+  }
 
   const featuredProjects = projects.filter(project => project.featured)
   const otherProjects = projects.filter(project => !project.featured)
@@ -152,16 +160,7 @@ const Projects = () => {
     },
   }
 
-  if (isLoading) {
-    return (
-      <div className="py-20 bg-gradient-to-br from-background via-background to-muted/20">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading projects...</p>
-        </div>
-      </div>
-    )
-  }
+
 
   return (
     <motion.section 
@@ -238,7 +237,10 @@ const Projects = () => {
         </motion.div>
 
         {/* Enhanced Featured Projects */}
-        <div className={`grid lg:grid-cols-2 gap-8 ${otherProjects.length > 0 || projects.length > 5 ? 'mb-20' : ''}`}>
+        <motion.div 
+          variants={containerVariants}
+          className={`grid lg:grid-cols-2 gap-8 ${otherProjects.length > 0 || projects.length > 5 ? 'mb-20' : ''}`}
+        >
           {featuredProjects.map((project) => (
             <motion.div 
               key={project.title} 
@@ -254,7 +256,13 @@ const Projects = () => {
                     whileHover={{ scale: 1.05 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <Image src={project.image} alt={project.title} width={1000} height={1000} className="w-full h-full object-cover" />
+                    {project.image ? (
+                      <Image src={project.image} alt={project.title} width={1000} height={1000} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-blue-200 to-purple-200 flex items-center justify-center">
+                        <project.icon className="h-16 w-16 text-blue-600" />
+                      </div>
+                    )}
                     <motion.div
                       className="absolute top-4 right-4 p-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg"
                       whileHover={{ rotate: 360, scale: 1.1 }}
@@ -356,11 +364,13 @@ const Projects = () => {
               </Card>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {/* Enhanced Other Projects show if there are other projects */}
         {otherProjects.length > 0 && (
-        <motion.div variants={itemVariants}>
+        <motion.div 
+          variants={itemVariants}
+        >
           <motion.h3 
             className="text-3xl font-bold text-center mb-12"
             whileHover={{ scale: 1.05 }}
@@ -390,7 +400,13 @@ const Projects = () => {
                       whileHover={{ scale: 1.05 }}
                       transition={{ duration: 0.3 }}
                     >
-                      <Image src={project.image} alt={project.title} width={1000} height={1000} className="w-full h-full object-cover" />
+                      {project.image ? (
+                        <Image src={project.image} alt={project.title} width={1000} height={1000} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-blue-200 to-purple-200 flex items-center justify-center">
+                          <project.icon className="h-12 w-12 text-blue-600" />
+                        </div>
+                      )}
                       <motion.div
                         className={`absolute top-2 right-2 p-1.5 rounded-full bg-gradient-to-r ${project.color} text-white shadow-md`}
                         whileHover={{ rotate: 360, scale: 1.1 }}

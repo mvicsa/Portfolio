@@ -11,7 +11,20 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { motion } from 'framer-motion'
-import { IProject } from '@/lib/models/Project'
+import { useLoadingState } from '@/hooks/useLoadingState'
+
+interface ProjectFormData {
+  title: string
+  description: string
+  shortDescription: string
+  image: string
+  technologies: string[]
+  githubUrl: string
+  liveUrl: string
+  featured: boolean
+  order: number
+  category: string
+}
 
 interface ProjectFormProps {
   project?: {
@@ -27,7 +40,7 @@ interface ProjectFormProps {
     order: number
     category: string
   } | null
-  onSave: (projectData: IProject) => Promise<void>
+  onSave: (projectData: ProjectFormData & { _id?: string }) => Promise<void>
   onCancel: () => void
   isEditing?: boolean
 }
@@ -46,21 +59,21 @@ export default function ProjectForm({ project, onSave, onCancel, isEditing = fal
     category: 'web'
   })
   const [newTech, setNewTech] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const { isLoading, startLoading, stopLoading } = useLoadingState()
 
   useEffect(() => {
     if (project) {
       setFormData({
-        title: project.title,
-        description: project.description,
-        shortDescription: project.shortDescription,
-        image: project.image,
-        technologies: project.technologies.length > 0 ? project.technologies : [''],
+        title: project.title || '',
+        description: project.description || '',
+        shortDescription: project.shortDescription || '',
+        image: project.image || '',
+        technologies: project.technologies && project.technologies.length > 0 ? project.technologies : [''],
         githubUrl: project.githubUrl || '',
         liveUrl: project.liveUrl || '',
-        featured: project.featured,
-        order: project.order,
-        category: project.category
+        featured: project.featured || false,
+        order: project.order || 0,
+        category: project.category || 'web'
       })
     }
   }, [project])
@@ -92,7 +105,7 @@ export default function ProjectForm({ project, onSave, onCancel, isEditing = fal
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
+          startLoading()
 
     try {
       const projectData = {
@@ -100,15 +113,22 @@ export default function ProjectForm({ project, onSave, onCancel, isEditing = fal
         technologies: formData.technologies.filter(tech => tech.trim() !== '')
       }
 
+      console.log('Form data being submitted:', projectData)
+      console.log('Is editing:', isEditing)
+      console.log('Project:', project)
+
       if (isEditing && project) {
-        await onSave({ ...projectData, _id: project._id } as IProject)
+        const dataToSave = { ...projectData, _id: project._id }
+        console.log('Saving edited project:', dataToSave)
+        await onSave(dataToSave)
       } else {
-        await onSave(projectData as IProject)
+        console.log('Saving new project:', projectData)
+        await onSave(projectData)
       }
     } catch (error) {
       console.error('Error saving project:', error)
     } finally {
-      setIsLoading(false)
+      stopLoading()
     }
   }
 
@@ -197,14 +217,10 @@ export default function ProjectForm({ project, onSave, onCancel, isEditing = fal
                   value={formData.shortDescription}
                   onChange={handleInputChange}
                   rows={2}
-                  placeholder="Brief description (max 200 characters)"
-                  maxLength={200}
+                  placeholder="Short description"
                   required
                   className="transition-all duration-300 ease-out focus:scale-[1.01] focus:shadow-lg border-border/50 focus:border-blue-500/50 resize-none"
                 />
-                <p className="text-xs text-muted-foreground">
-                  {formData.shortDescription.length}/200 characters
-                </p>
               </motion.div>
 
               <motion.div 

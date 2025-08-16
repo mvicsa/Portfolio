@@ -7,6 +7,7 @@ import { Globe as GlobeComponent } from "@/components/magicui/globe"
 import { motion } from "framer-motion"
 import React, { useEffect, useState } from "react"
 import Link from "next/link"
+import { useLoading } from "@/components/loading-provider"
 
 interface Profile {
   name: string;
@@ -42,7 +43,7 @@ interface Profile {
 
 const About = () => {
   const [profile, setProfile] = useState<Profile | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const { isLoading } = useLoading()
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -62,13 +63,21 @@ const About = () => {
         }
       } catch (error) {
         console.error('Error fetching profile:', error)
-      } finally {
-        setIsLoading(false)
       }
     }
 
     fetchProfile()
   }, [])
+
+  // Don't render anything while the global loading is active
+  if (isLoading) {
+    return null
+  }
+
+  // Don't render if profile is not loaded yet
+  if (!profile) {
+    return null
+  }
 
   // Default skills with icons and colors if no profile data
   const getSkillWithIcon = (skillName: string, index: number) => {
@@ -210,54 +219,6 @@ const About = () => {
         ease: "easeOut" as const,
       },
     },
-  }
-
-  if (isLoading) {
-    return (
-      <div className="py-20 bg-muted/30 relative overflow-hidden">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading profile...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!profile) {
-    return (
-      <div className="py-20 bg-muted/30 relative overflow-hidden">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-muted-foreground">Unable to load profile data.</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (isLoading) {
-    return (
-      <div className="py-20 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading profile...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!profile) {
-    return (
-      <div className="py-20 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">Failed to load profile</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    )
   }
 
   return (

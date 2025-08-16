@@ -5,6 +5,7 @@ import { useState, useEffect } from "react"
 import { Github, Linkedin, Twitter, Instagram, Mail, Heart, Sparkles, Star, Zap, Globe, ArrowUp } from "lucide-react"
 import { motion } from "framer-motion"
 import Logo from "@/components/Logo"
+import { useLoading } from "@/components/loading-provider"
 
 const Footer = () => {
   const currentYear = new Date().getFullYear()
@@ -14,6 +15,8 @@ const Footer = () => {
     { name: "Twitter", icon: Twitter, href: "https://twitter.com/mvicsa", color: "from-blue-400 to-blue-500" },
     { name: "Email", icon: Mail, href: "mailto:hello@mvicsa.dev", color: "from-green-600 to-emerald-600" }
   ])
+
+  const { isLoading } = useLoading()
 
   // Fetch social links from Profile database on component mount
   useEffect(() => {
@@ -133,6 +136,10 @@ const Footer = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  if (isLoading) {
+    return null
+  }
+
   return (
     <motion.footer 
       className="bg-background border-t border-border relative overflow-hidden"
@@ -206,20 +213,18 @@ const Footer = () => {
             </motion.p>
             {socialLinks.length > 0 && (
               <div className="flex space-x-4">
-                {socialLinks.map((social, index) => (
-                <motion.a
-                  key={social.name}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg"
-                  aria-label={social.name}
-                                     whileHover={{ y: -5, scale: 1.1, rotate: 5 }}
-                   whileTap={{ scale: 0.95 }}
-                   initial={{ opacity: 0, y: 20 }}
-                   whileInView={{ opacity: 1, y: 0 }}
-                   viewport={{ once: true }}
-                   transition={{ type: "spring", stiffness: 300, delay: index * 0.1 }}
+                {socialLinks.map((social) => (
+                                  <motion.a
+                    key={social.name}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg"
+                    aria-label={social.name}
+                    variants={itemVariants}
+                    whileHover={{ y: -5, scale: 1.1, rotate: 5 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ type: "spring", stiffness: 300 }}
                   style={{
                     background: `linear-gradient(135deg, var(--${social.color.split('-')[1]}-600), var(--${social.color.split('-')[2]}-600))`
                   }}
@@ -232,7 +237,7 @@ const Footer = () => {
           </motion.div>
 
           {/* Enhanced Footer Links */}
-          {footerLinks.sections.map((section, sectionIndex) => (
+          {footerLinks.sections.map((section) => (
             <motion.div key={section.title} variants={itemVariants}>
               <motion.h3 
                 className="font-semibold mb-4"
@@ -248,14 +253,12 @@ const Footer = () => {
                 </motion.span>
               </motion.h3>
               <ul className="space-y-2">
-                {section.links.map((link, linkIndex) => (
+                {section.links.map((link) => (
                   <motion.li 
                     key={link.name}
-                                         whileHover={{ x: 5 }}
-                     initial={{ opacity: 0, x: -10 }}
-                     whileInView={{ opacity: 1, x: 0 }}
-                     viewport={{ once: true }}
-                     transition={{ type: "spring", stiffness: 400, delay: (sectionIndex * 0.1) + (linkIndex * 0.05) }}
+                    variants={itemVariants}
+                    whileHover={{ x: 5 }}
+                    transition={{ type: "spring", stiffness: 400 }}
                   >
                     <Link
                       href={link.href}
@@ -373,14 +376,12 @@ const Footer = () => {
                   { name: "Privacy Policy", href: "#" },
                   { name: "Terms of Service", href: "#" },
                   { name: "Cookie Policy", href: "#" }
-                ].map((link, index) => (
+                ].map((link) => (
                   <motion.div
                     key={link.name}
+                    variants={itemVariants}
                     whileHover={{ y: -2 }}
-                    initial={{ opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ type: "spring", stiffness: 300, delay: index * 0.1 }}
+                    transition={{ type: "spring", stiffness: 300 }}
                   >
                     <Link 
                       href={link.href} 

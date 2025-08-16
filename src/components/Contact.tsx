@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Mail, Phone, MapPin, Linkedin, Github, Twitter, Instagram, Send, CheckCircle, Sparkles, Star, Zap, MessageCircle } from "lucide-react"
 import { Globe } from "@/components/magicui/globe"
 import { motion } from "framer-motion"
+import { useLoading } from "@/components/loading-provider"
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +15,8 @@ const Contact = () => {
     subject: "",
     message: ""
   })
+
+  const { isLoading } = useLoading()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -269,6 +272,10 @@ const Contact = () => {
         ease: "easeOut" as const,
       },
     },
+  }
+
+  if (isLoading) {
+    return null
   }
 
   return (
@@ -625,7 +632,7 @@ const Contact = () => {
               </motion.span>
             </motion.h3>
               <div className="space-y-4">
-                                 {contactInfoDisplay.map((info, index) => (
+                {contactInfoDisplay.map((info, index) => (
                   <motion.div
                     key={info.title}
                     className="flex items-center space-x-4 p-4 rounded-lg hover:bg-muted/50 transition-all duration-300 group"

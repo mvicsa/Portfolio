@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { useLoadingState } from '@/hooks/useLoadingState'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -40,14 +41,14 @@ const ContactMessages = () => {
   const [messages, setMessages] = useState<ContactMessage[]>([])
   const [counts, setCounts] = useState<MessageCounts>({ unread: 0, read: 0, replied: 0, total: 0 })
   const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 10, total: 0, pages: 0 })
-  const [loading, setLoading] = useState(true)
+  const { isLoading: loading, startLoading, stopLoading } = useLoadingState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [selectedTab, setSelectedTab] = useState("all")
 
   const fetchMessages = useCallback(async () => {
     try {
-      setLoading(true)
+      startLoading()
       const params = new URLSearchParams({
         page: pagination.page.toString(),
         limit: pagination.limit.toString(),
@@ -66,9 +67,9 @@ const ContactMessages = () => {
     } catch (error) {
       console.error('Error fetching messages:', error)
     } finally {
-      setLoading(false)
+      stopLoading()
     }
-  }, [pagination.page, pagination.limit, statusFilter, searchTerm])
+  }, [pagination.page, pagination.limit, statusFilter, searchTerm, startLoading, stopLoading])
 
   const updateMessageStatus = async (messageId: string, newStatus: string) => {
     try {

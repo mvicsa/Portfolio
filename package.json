@@ -10,7 +10,8 @@
     "setup-env": "cp env.example .env.local && echo 'Environment file created! Please edit .env.local with your actual values.'",
     "setup-admin": "node scripts/setup-admin.js",
     "add-sample-data": "node scripts/sample-data.js",
-    "demo-about": "node scripts/demo-about.js"
+    "demo-about": "node scripts/demo-about.js",
+    "sample-projects": "node scripts/sample-projects.js"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.12",
