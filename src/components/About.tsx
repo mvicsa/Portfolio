@@ -43,7 +43,7 @@ interface Profile {
 
 const About = () => {
   const [profile, setProfile] = useState<Profile | null>(null)
-  const { isLoading } = useLoading()
+  const { isLoading, setDataLoaded } = useLoading()
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -57,17 +57,20 @@ const About = () => {
             console.log('About component profile data:', result.data)
             console.log('About component experiences:', result.data.experiences)
             setProfile(result.data)
+            setDataLoaded('profile', true)
           } else {
             console.error('Profile API returned error:', result.error)
+            setDataLoaded('profile', true) // Still mark as loaded even if error
           }
         }
       } catch (error) {
         console.error('Error fetching profile:', error)
+        setDataLoaded('profile', true) // Still mark as loaded even if error
       }
     }
 
     fetchProfile()
-  }, [])
+  }, [setDataLoaded])
 
   // Don't render anything while the global loading is active
   if (isLoading) {

@@ -14,7 +14,7 @@ import { useLoading } from "@/components/loading-provider"
 
 const Projects = () => {
   const [projects, setProjects] = useState<(IProject & { icon: React.ElementType; color: string })[]>([])
-  const { isLoading } = useLoading()
+  const { isLoading, setDataLoaded } = useLoading()
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -44,14 +44,16 @@ const Projects = () => {
           })
           console.log('Projects with icons:', projectsWithIcons)
           setProjects(projectsWithIcons)
+          setDataLoaded('projects', true)
         }
       } catch (error) {
         console.error('Error fetching projects:', error)
+        setDataLoaded('projects', true) // Still mark as loaded even if error
       }
     }
 
     fetchProjects()
-  }, [])
+  }, [setDataLoaded])
 
   // Don't render anything while the global loading is active
   if (isLoading) {

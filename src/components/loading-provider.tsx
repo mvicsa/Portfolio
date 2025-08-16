@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Zap, Sparkles, Star, Rocket } from 'lucide-react'
 
@@ -8,6 +8,7 @@ interface LoadingContextType {
   isLoading: boolean
   setIsLoading: (loading: boolean) => void
   setLoadingMessage: (message: string) => void
+  setDataLoaded: (type: 'profile' | 'projects', loaded: boolean) => void
 }
 
 const LoadingContext = createContext<LoadingContextType | undefined>(undefined)
@@ -27,19 +28,29 @@ interface LoadingProviderProps {
 export const LoadingProvider = ({ children }: LoadingProviderProps) => {
   const [isLoading, setIsLoading] = useState(true)
   const [loadingMessage, setLoadingMessage] = useState('Initializing...')
+  const [dataLoaded, setDataLoaded] = useState({ profile: false, projects: false })
 
   useEffect(() => {
-    // Simulate initial loading time
-    const timer = setTimeout(() => {
+    // Check if all data is loaded
+    if (dataLoaded.profile && dataLoaded.projects) {
       setIsLoading(false)
-    }, 3000) // Show loading for 3 seconds
+    }
+    
+    // Fallback: if data takes too long, show content anyway
+    const fallbackTimer = setTimeout(() => {
+      setIsLoading(false)
+    }, 10000) // 10 seconds fallback
+    
+    return () => clearTimeout(fallbackTimer)
+  }, [dataLoaded])
 
-    return () => clearTimeout(timer)
+  const setDataLoadedHandler = useCallback((type: 'profile' | 'projects', loaded: boolean) => {
+    setDataLoaded(prev => ({ ...prev, [type]: loaded }))
   }, [])
 
-  const setLoadingMessageHandler = (message: string) => {
+  const setLoadingMessageHandler = useCallback((message: string) => {
     setLoadingMessage(message)
-  }
+  }, [])
 
   // Predefined positions to avoid hydration errors while keeping the amazing design
   const lightningPositions = [
@@ -51,7 +62,7 @@ export const LoadingProvider = ({ children }: LoadingProviderProps) => {
   ]
 
   return (
-    <LoadingContext.Provider value={{ isLoading, setIsLoading, setLoadingMessage: setLoadingMessageHandler }}>
+    <LoadingContext.Provider value={{ isLoading, setIsLoading, setLoadingMessage: setLoadingMessageHandler, setDataLoaded: setDataLoadedHandler }}>
       {children}
       
       <AnimatePresence>
