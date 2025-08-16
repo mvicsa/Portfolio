@@ -359,7 +359,7 @@ const Contact = () => {
               whileHover={{ y: -8, scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              <Card className="group hover:shadow-2xl transition-all duration-500 relative overflow-hidden border-0 bg-gradient-to-br from-background to-muted/50">
+              <Card className="group hover:shadow-2xl transition-all duration-500 relative overflow-hidden border-0 bg-gradient-to-br from-background to-muted/50 shadow-sm">
                 <CardHeader>
                   <motion.div
                     whileHover={{ x: 5 }}
@@ -720,7 +720,7 @@ const Contact = () => {
               whileHover={{ y: -5, scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              <Card className="group hover:shadow-xl transition-all duration-500 relative overflow-hidden border-0 bg-gradient-to-br from-background to-muted/30">
+              <Card className="group hover:shadow-xl transition-all duration-500 relative overflow-hidden border-0 bg-gradient-to-br from-background to-muted/30 shadow-sm">
                 <CardContent>
                   <motion.h4 
                     className="font-semibold mb-3"
